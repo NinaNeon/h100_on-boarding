@@ -17,3 +17,16 @@ srun: job 5409 queued and waiting for resources
 srun: job 5409 has been allocated resources
 groups: cannot find name for group ID 1003
 caijingnina-gmai-11e66a@cnode4-009:~$
+
+
+caijingnina-gmai-11e66a@cnode4-009:~$ sbatch gpu.sh
+sbatch: error: Unable to open file gpu.sh
+caijingnina-gmai-11e66a@cnode4-009:~$ nano gpu.sh
+caijingnina-gmai-11e66a@cnode4-009:~$ sbatch gpu.sh
+Submitted batch job 5410
+caijingnina-gmai-11e66a@cnode4-009:~$ squeue -u $USER
+             JOBID PARTITION     NAME     USER ST       TIME  NODES NODELIST(REASON)
+              5409 NTU_Share     bash caijingn  R       3:02      1 cnode4-009
+caijingnina-gmai-11e66a@cnode4-009:~$ cat slurm-<jobID>.out
+bash: jobID: No such file or directory
+caijingnina-gmai-11e66a@cnode4-009:~$
