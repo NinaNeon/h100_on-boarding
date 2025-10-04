@@ -1,24 +1,24 @@
 # h100_on-boarding
 
-
+```bash
 ssh -J caijingnina-gmai-11e66a@jb1.frontier.nvidia.com:2222 caijingnina-gmai-11e66a@4.tun.tp1-cluster.nvidia.com
+```
 
 
-
-
+```bash
 ssh -i ~/.ssh/id_ed25519 \
   -o "ProxyCommand=ssh -i ~/.ssh/id_ed25519 -W %h:%p caijingnina-gmai-11e66a@jb1.frontier.nvidia.com -p 2222" \
   caijingnina-gmai-11e66a@4.tun.tp1-cluster.nvidia.com
+```
 
-
-
+```bash
 caijingnina-gmai-11e66a@Tunnel3-TRDC-02:~$ srun -N 1 -p NTU_Shared --gres=gpu:1 --pty /bin/bash
 srun: job 5409 queued and waiting for resources
 srun: job 5409 has been allocated resources
 groups: cannot find name for group ID 1003
 caijingnina-gmai-11e66a@cnode4-009:~$
-
-
+```
+```bash
 caijingnina-gmai-11e66a@cnode4-009:~$ sbatch gpu.sh
 sbatch: error: Unable to open file gpu.sh
 caijingnina-gmai-11e66a@cnode4-009:~$ nano gpu.sh
@@ -30,7 +30,7 @@ caijingnina-gmai-11e66a@cnode4-009:~$ squeue -u $USER
 caijingnina-gmai-11e66a@cnode4-009:~$ cat slurm-<jobID>.out
 bash: jobID: No such file or directory
 caijingnina-gmai-11e66a@cnode4-009:~$
-
+```
 
 ✅ 完美！你已经确认拿到一张 **H100 80GB HBM3**，现在在 **计算节点 cnode4-009** 上，GPU 空闲可以使用。
 
