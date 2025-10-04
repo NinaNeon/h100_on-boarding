@@ -185,4 +185,137 @@ cat slurm-5410.out
 ---
 
 要不要我帮你改 `gpu.sh`，加上一段 **Python (PyTorch CUDA 测试代码)**？这样跑完后输出文件里会直接显示 GPU 能不能被 PyTorch 用。
+我會幫您建立一個使用 odise.yml 和 requirements.txt 的自訂容器映像檔。讓我整理一個完整的步驟指南：
 
+## 在 Taipei-1 上建立 ODISE 自訂映像檔
+
+### 步驟 1：登入運算節點
+```bash
+srun -N 1 -p defq --mpi=pmix --gres=gpu:1 --ntasks-per-node 1 --pty /bin/bash
+```
+
+### 步驟 2：下載基礎映像
+由於您的環境需要 Python 3.9 和 PyTorch 1.13.1，建議使用 PyTorch NGC 容器作為基礎：
+
+```bash
+# 下載 PyTorch 22.12 容器 (包含 PyTorch 1.13)
+enroot import docker://nvcr.io#nvidia/pytorch:22.12-py3
+```
+
+這會生成類似 `nvidia+pytorch+22.12-py3.sqsh` 的檔案。
+
+### 步驟 3：建立容器
+```bash
+enroot create --name odise_custom nvidia+pytorch+22.12-py3.sqsh
+```
+
+### 步驟 4：啟動容器並安裝套件
+```bash
+enroot start --root -w odise_custom /bin/bash
+```
+
+進入容器後，執行以下安裝指令：
+
+```bash
+# 更新 pip
+pip install --upgrade pip
+
+# 安裝 requirements.txt 中的套件
+pip install absl-py==2.3.1
+pip install aiohappyeyeballs==2.6.1
+pip install aiohttp==3.12.15
+pip install aiosignal==1.4.0
+pip install antlr4-python3-runtime==4.9.3
+pip install appdirs==1.4.4
+pip install async-timeout==5.0.1
+pip install attrs==25.3.0
+pip install black==21.4b2
+pip install boto3==1.40.25
+pip install cloudpickle==3.1.1
+pip install contourpy==1.3.0
+pip install cycler==0.12.1
+pip install einops==0.8.1
+pip install filelock==3.19.1
+pip install ftfy==6.3.1
+pip install hydra-core==1.3.2
+pip install omegaconf==2.3.0
+pip install open-clip-torch==2.20.0
+pip install opencv-python==4.11.0.86
+pip install Pillow==9.5.0
+pip install pycocotools==2.0.10
+pip install pytorch-lightning==1.9.5
+pip install PyYAML==6.0.2
+pip install scipy==1.10.1
+pip install transformers==4.36.2
+pip install timm==0.6.11
+pip install kornia==0.6.12
+
+# 安裝 Detectron2
+pip install 'git+https://github.com/facebookresearch/detectron2.git'
+
+# 安裝其他重要套件
+pip install scikit-image==0.24.0
+pip install sentencepiece==0.2.1
+pip install tqdm==4.67.1
+pip install termcolor==3.1.0
+
+# 離開容器
+exit
+```
+
+### 步驟 5：匯出映像檔
+```bash
+enroot export --output odise_custom.sqsh odise_custom
+```
+
+### 步驟 6：清理容器
+```bash
+enroot remove odise_custom
+exit
+```
+
+---
+
+## 使用建立好的映像檔
+
+### 互動式模式測試
+```bash
+srun \
+  -N 1 \
+  -p defq \
+  --mpi=pmix \
+  --gres=gpu:1 \
+  --ntasks-per-node 1 \
+  --container-image ${HOME}/odise_custom.sqsh \
+  --container-writable \
+  --container-remap-root \
+  --pty /bin/bash
+```
+
+### 執行訓練作業（單節點 8 GPU）
+```bash
+srun \
+  -N 1 \
+  -p defq \
+  --mpi=pmix \
+  --gres=gpu:8 \
+  --ntasks-per-node 1 \
+  --container-image ${HOME}/odise_custom.sqsh \
+  --container-writable \
+  --container-mounts /mnt/SCRATCH/:/mnt/SCRATCH \
+  python your_training_script.py
+```
+
+---
+
+## 注意事項
+
+1. **套件版本衝突**：您的 odise.yml 和 requirements.txt 有些套件版本不同（如 black、numpy 等），我以 requirements.txt 為主進行安裝
+
+2. **PyTorch 版本**：基礎映像的 PyTorch 版本需與您要求的 1.13.1 匹配，NGC 的 22.12 版本包含此版本
+
+3. **時間考量**：完整安裝所有套件可能需要 10-30 分鐘，請耐心等候
+
+4. **儲存位置**：生成的 `odise_custom.sqsh` 會在您當前目錄，建議移動到 `${HOME}` 或專案目錄
+
+需要我提供一個自動化安裝腳本嗎？
