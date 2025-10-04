@@ -1,5 +1,8 @@
 # h100_on-boarding
 
+
+https://hackmd.io/@MasonWu/r1p9Hb88gg
+
 ```bash
 ssh -J caijingnina-gmai-11e66a@jb1.frontier.nvidia.com:2222 caijingnina-gmai-11e66a@4.tun.tp1-cluster.nvidia.com
 ```
