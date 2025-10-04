@@ -319,3 +319,23 @@ srun \
 4. **儲存位置**：生成的 `odise_custom.sqsh` 會在您當前目錄，建議移動到 `${HOME}` 或專案目錄
 
 需要我提供一個自動化安裝腳本嗎？
+
+```bash
+caijingnina-gmai-11e66a@cnode4-005:~$ ^C
+caijingnina-gmai-11e66a@cnode4-005:~$ exit
+exit
+srun: error: cnode4-005: task 0: Exited with exit code 130
+caijingnina-gmai-11e66a@Tunnel3-TRDC-02:~$ srun \
+  -N 1 \
+  -p NTU_Shared \
+  --mpi=pmix \
+  --gres=gpu:1 \
+  --ntasks-per-node=1 \
+  --container-image=${HOME}/odise_custom.sqsh \
+  --container-writable \
+  --container-remap-root \
+  --pty /bin/bash
+srun: job 5440 queued and waiting for resources
+srun: job 5440 has been allocated resources
+root@cnode4-005:/workspace#
+```
